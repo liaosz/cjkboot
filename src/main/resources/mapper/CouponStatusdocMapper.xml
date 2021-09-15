@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sz.mapper.CouponStatusDocMapper">
+
+
+    <select id="getCouponStatusDocs" resultType="com.sz.domain.CouponStatusDoc">
+        select
+            batch_num,
+            ltrim(rtrim(card_id)) as card_id,
+            check_code,
+            check_shop_id,
+            use_time,
+            all_amount,
+            bill_no,
+            name
+        from view_couponstatusdoc
+        where is_up &lt;&gt; '是'
+           or is_up is null
+
+    </select>
+    <!-- 接收list参数，循环着组装sql语句，注意for循环的写法
+             separator=";" 代表着每次循环完，在sql后面放一个分号
+             item="cus" 循环List的每条的结果集
+             collection="list" list 即为 传过来的参数key -->
+    <update id="updateCouponStatusDocs" parameterType="java.util.List">
+
+        <foreach collection="list" separator=";" index="index" open="" close=""  item="couponstatusdoc">
+            update couponstatusdoc set is_up='是' ,upmodifytime=CONVERT(varchar(20),GETDATE(),20)
+            where batch_num = #{couponstatusdoc.batch_num} and  check_code=#{couponstatusdoc.check_code}
+        </foreach>
+
+    </update>
+
+
+</mapper>

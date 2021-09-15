@@ -1,0 +1,76 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: druid
+  jackson:
+    #日期格式化
+    date-format: yyyy-MM-dd HH:mm:ss
+    serialization:
+      #格式化输出
+      indent_output: true
+      #忽略无法转换的对象
+      #      fail_on_empty_beans: false
+      #设置空如何序列化
+    #    defaultPropertyInclusion: NON_EMPTY
+    #    deserialization:
+    #      #允许对象忽略json中不存在的属性
+    #      fail_on_unknown_properties: false
+    parser:
+      #允许出现特殊字符和转义符
+      allow_unquoted_control_chars: true
+      #允许出现单引号
+      allow_single_quotes: true
+mybatis-plus:
+  #MyBatis Mapper 所对应的 XML 文件位置
+  mapper-locations: classpath:mapper/*.xml
+
+  #  MyBaits 别名包扫描路径，通过该属性可以给包中的类注册别名，
+  #注册后在 Mapper 对应的 XML 文件中可以直接使用类名，而不用使用全限定的类名（即 XML 中调用的时候不用包含包名）
+  typeAliasesPackage: com.sz.domain
+  # 与 typeAliasesPackage 一起使用，仅扫描以该类作为父类的类
+  # type-aliases-super-type: java.lang.Object
+  # 配置扫描通用枚举,配置该属性，会对枚举类进行注入
+  #typeEnumsPackage: com.sz
+  # 该包下的类注册为自定义类型转换处理类，用于属性类型转换
+  # type-handlers-package:
+  # 指定 mybatis 处理器
+  # executorType: simple
+  # mybatis全局配置文件路径，不能和configuration配置一起使用
+  #config-location: classpath:mybatis/SqlMapConfig.xml
+  configuration:
+    #使用驼峰法映射属性,配置这个resultType可以映射
+    map-underscore-to-camel-case: false
+    cache-enabled: true
+    lazy-loading-enabled: false
+    multiple-result-sets-enabled: true
+    use-column-label: true
+    use-generated-keys: false
+    auto-mapping-behavior: partial
+    default-executor-type: simple
+    default-statement-timeout: 25
+    default-fetch-size: 100
+    safe-row-bounds-enabled: false
+    local-cache-scope: session
+    jdbc-type-for-null: other
+    lazy-load-trigger-methods: equals
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      # 配置表明前缀，例如表设计时表名为tb_manager，对应entity为Manager
+      table-prefix: tb_
+      #逻辑已删除值
+      logic-delete-value: 1
+      #逻辑未删除值
+      logic-not-delete-value: 0
+      # 是否开启like查询，即对 stirng 字段是否使用 like，默认不开启
+      # column-like: false
+
+api-config:
+  http-url: https://tmcjkapi.cunjk.com
+  shop-id: 100
+  getSyncToken: ${api-config.http-url}/sync/getSyncToken.do?appid=hx952h6T6kn5&type=syncToken
+  synCouponRules: ${api-config.http-url}/sync/synCouponRules.do?token={token}&timestamp={timestamp}&shopid=${api-config.shop-id}
+  #sendCheckCode: ${api-config.http_url}/sync/sendCheckCode
+  checkCodeState: ${api-config.http-url}/sync/checkCodeState.do?token={token}&timestamp={timestamp}&shopid=${api-config.shop-id}

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.0.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.0.xsd http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task.xsd">
+
+    <!--启用注解，加载定时任务-->
+    <!-- 串行:不管一个类多个方法或者多个类中都是串行的-->
+    <!--<task:annotation-driven />-->
+    <!-- 并行：
+        1、每个注解定时任务的方法都会用到pool-size,如果有方法一直没释放将占用pool-size
+        2、每个方法最多只会占用一个pool-size.
+    -->
+    <task:annotation-driven scheduler="scheduler"/>
+    <task:scheduler id="scheduler" pool-size="2"/>
+
+
+    <context:annotation-config/>
+    <!--定时任务扫描的包-->
+    <context:component-scan base-package="com.sz.quartz"/>
+    <!--<bean id="jobFactory" class="com.sz.quartz.MyJobFactory"></bean>-->
+
+    <!--需要执行的任务类-->
+    <bean id="quartzJob" class="com.sz.quartz.QuartzSync"/>    <!-- 需要执行的任务 -->
+    <bean id="jobDetailBean" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+        <property name="targetObject">
+            <ref bean="quartzJob"/>
+        </property>
+        <property name="targetMethod">
+            <value>syncTask</value>
+        </property>
+        <property name="concurrent"><!--串行任务，上次没有执行完不会执行下一次-->
+            <value>false</value>
+        </property>
+    </bean>
+    <!-- 配置指定的时间执行一次任务，可以指定在某个点执行任务  属于并行任务-->
+    <bean id="cronTriggerBean" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean" >
+        <property name="jobDetail" ref="jobDetailBean"/>
+        <property name="cronExpression">
+            <value>0 */5 * * * ?</value>
+        </property>
+    </bean>
+    <!-- 配置间隔多长时间执行一次任务，name=repeatInterval value="3000"就是每隔3秒钟执行一次 ,value=0,表示立即执行-->
+    <bean id="simpleTriggerBean" class="org.springframework.scheduling.quartz.SimpleTriggerFactoryBean">
+        <property name="jobDetail" ref="jobDetailBean"/>
+        <property name="startDelay" value="5000"/>  <!--启动延迟  单位/毫秒-->
+        <property name="repeatInterval" value="60000"/> <!--间隔时间-->
+        <property name="repeatCount" value="-1"/><!--重复次数（-1：无数次；0：一次.....）-->
+    </bean>
+    <!--开始执行上面的两个定时任务-->
+    <bean id="startQuertz" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+       <!-- <property name="jobFactory" ref="jobFactory"/>-->
+        <property name="triggers">
+            <list>
+               <!-- <ref bean="simpleTriggerBean"/>-->
+                <ref bean="cronTriggerBean"/>
+            </list>
+        </property>
+    </bean>
+
+</beans>

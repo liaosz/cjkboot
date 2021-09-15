@@ -1,0 +1,49 @@
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    dynamic:
+      primary: db1 #设置默认的数据源,默认值为master
+      strict: false
+      datasource:
+        db1: #数据源db1
+          driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver  #net.sourceforge.jtds.jdbc.Driver
+          url: jdbc:sqlserver://139.155.227.190:63788;DatabaseName=jk # jdbc:jtds:sqlserver://139.155.227.190:63788;DatabaseName=jk
+          username: sa
+          password: soft@2019
+
+        db2: #数据源db2
+          driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+          url: jdbc:sqlserver://fjydyyy.f3322.net:5135;DatabaseName=lxk
+          username: tmpdl
+          password: tmpdl@202005
+      druid:
+        initial-size: 10
+        max-active: 100
+        min-idle: 10
+        max-wait: 60000
+        pool-prepared-statements: true
+        max-pool-prepared-statement-per-connection-size: 20
+        time-between-eviction-runs-millis: 60000
+        min-evictable-idle-time-millis: 300000
+        #Oracle需要打开注释
+        #      validation-query: SELECT 1 FROM DUAL
+        validation-query: SELECT 1
+        test-while-idle: true
+        test-on-borrow: false
+        test-on-return: false
+        stat-view-servlet:
+          enabled: true
+          url-pattern: /druid/*
+          #login-username: admin
+          #login-password: admin
+        filters: stat,slf4j
+        filter:
+          stat:
+            log-slow-sql: true
+            slow-sql-millis: 1000
+            merge-sql: false
+          wall:
+            enabled: true
+            config:
+              multi-statement-allow: true # 开启批量更新  sqlserver不生效 不知道原因
+              none-base-statement-allow: true

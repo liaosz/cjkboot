@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sz.mapper.CouponSendDocMapper">
+
+
+    <insert id="saveCouponSendDocs" parameterType="java.util.List">
+        <foreach collection="list" separator=";" index="index" open="" close="" item="doc">
+            IF EXISTS(SELECT * FROM couponsenddoc where batch_num=#{doc.batch_num} AND check_code = #{doc.check_code})
+                UPDATE couponsenddoc
+                SET coupon_id=#{doc.coupon_id},card_id= #{doc.card_id} ,shop_id=#{doc.shop_id} ,
+                begin_date=#{doc.begin_date}, end_date=#{doc.end_date}
+                WHERE batch_num=#{doc.batch_num} AND check_code = #{doc.check_code}
+            ELSE
+                INSERT INTO couponsenddoc(batch_num,coupon_id,card_id,shop_id,check_code,begin_date,end_date)
+                VALUES
+                (#{doc.batch_num},#{doc.coupon_id},#{doc.card_id},#{doc.shop_id},#{doc.check_code},#{doc.begin_date},#{doc.end_date})
+        </foreach>
+
+
+    </insert>
+
+    <insert id="saveOrUpdateCouponSendDoc" parameterType="com.sz.domain.CouponSendDoc">
+
+            IF EXISTS(SELECT * FROM couponsenddoc where batch_num=#{batch_num} AND check_code = #{check_code})
+            UPDATE couponsenddoc
+            SET coupon_id=#{coupon_id},card_id= #{card_id} ,shop_id=#{shop_id} ,
+            begin_date=#{begin_date}, end_date=#{end_date}
+            WHERE batch_num=#{batch_num} AND check_code = #{check_code}
+            ELSE
+            INSERT INTO couponsenddoc(batch_num,coupon_id,card_id,shop_id,check_code,begin_date,end_date)
+            VALUES
+            (#{batch_num},#{coupon_id},#{card_id},#{shop_id},#{check_code},#{begin_date},#{end_date})
+
+
+
+    </insert>
+
+
+</mapper>

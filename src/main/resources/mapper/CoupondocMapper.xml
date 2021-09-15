@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sz.mapper.CoupondocMapper">
+
+
+    <select id="getCoupondocs" resultType="com.sz.domain.Coupondoc">
+        select shop_id,
+               coupon_id,
+               coupon_type,
+               coupon_name,
+               time_type,
+               effective_days,
+               begin_date,
+               end_date,
+               coupon_amount,
+               limit_amount,
+               coupon_desc,
+               type,
+               quantity
+
+        from view_coupondoc
+        where is_up &lt;&gt; '是'
+           or is_up is null
+
+    </select>
+    <!-- 接收list参数，循环着组装sql语句，注意for循环的写法
+             separator=";" 代表着每次循环完，在sql后面放一个分号
+             item="cus" 循环List的每条的结果集
+             collection="list" list 即为 传过来的参数key -->
+    <update id="updateCoupondocs" parameterType="java.util.List">
+
+        update coupondoc set is_up='是' ,upmodifytime=CONVERT(varchar(20),GETDATE(),20)
+        <where>
+            coupon_id in
+            <foreach collection="list" separator="," index="index" open="(" close=")"  item="coupondoc">
+                 #{coupondoc.coupon_id}
+            </foreach>
+        </where>
+
+    </update>
+    <!--<update id="updateCoupondocs" parameterType="java.util.List">
+        &lt;!&ndash; 接收list参数，循环着组装sql语句，注意for循环的写法
+             separator=";" 代表着每次循环完，在sql后面放一个分号
+             item="cus" 循环List的每条的结果集
+             collection="list" list 即为 传过来的参数key &ndash;&gt;
+
+            <foreach collection="list" separator=";" index="index" open="" close=""  item="coupondoc">
+                update coupondoc set is_up='是' ,upmodifytime=CONVERT(varchar(20),GETDATE(),20) where coupon_id = #{coupondoc.coupon_id}
+            </foreach>
+
+    </update>-->
+
+</mapper>
